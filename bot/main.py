@@ -6,10 +6,9 @@ import os
 
 from aiogram import Dispatcher, types, F, Router, Bot
 
-from app.utils.middlewares import UserMiddleware
+from app.utils.middlewares import UserMiddleware, BotMembershipMiddleware
 from app.utils.db import db
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.fsm.storage.redis import RedisStorage
 from dotenv import load_dotenv
 
 from app.utils.middlewares import DataBaseMiddleware
@@ -35,6 +34,7 @@ async def main():
     dp.callback_query.middleware(ThrottlingMiddleware())
     dp.callback_query.outer_middleware(DataBaseMiddleware(db=db))
     dp.callback_query.outer_middleware(UserMiddleware())
+    dp.chat_member.middleware(BotMembershipMiddleware())
 
     dp.include_router(main_router)
 

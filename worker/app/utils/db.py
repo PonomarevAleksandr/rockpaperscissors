@@ -5,9 +5,6 @@ import motor.motor_asyncio
 
 from dotenv import load_dotenv
 from pydantic import BaseModel
-
-from app.models.groups import Groups
-from app.models.stats import Stats
 from app.models.user import User
 from app.models.requests import Requests
 
@@ -75,13 +72,10 @@ class Collection:
 class MongoDbClient(BaseModel):
     users: Any
     requests: Any
-    groups: Any
-    stats: Any
 
 
 db = MongoDbClient(
     users=Collection(collection_name='users', model=User),
-    requests=Collection(collection_name='requests', model=Requests),
-    groups=Collection(collection_name='groups', model=Groups),
-    stats=Collection(collection_name='stats', model=Stats)
+    requests=Collection(collection_name='requests', model=Requests)
+
 )

@@ -4,4 +4,7 @@ from aiogram import Router
 
 router = Router()
 
-router.include_routers()
+
+from .chats import router as chats_router
+
+router.include_routers(chats_router)

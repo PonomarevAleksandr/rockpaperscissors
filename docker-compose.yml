@@ -4,6 +4,12 @@ services:
       context: .
       dockerfile: Dockerfile.bot
 
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+
+
   mongo:
     image: mongo
     restart: always

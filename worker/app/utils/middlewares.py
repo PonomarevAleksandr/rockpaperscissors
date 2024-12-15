@@ -1,18 +1,15 @@
-import logging
 import time
 from typing import Any
 from typing import Awaitable
 from typing import Callable
 from typing import Dict
 
-from aiogram import BaseMiddleware, Bot
-from aiogram.types import Update, Message, ChatMemberUpdated
+from aiogram import BaseMiddleware
+from aiogram.types import Update, Message
 from typing import Any, Awaitable, Callable, Dict
 from cachetools import TTLCache
 from app.models.user import User
 from motor.motor_asyncio import AsyncIOMotorClient
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class UserMiddleware(BaseMiddleware):
 
@@ -92,13 +89,3 @@ class DataBaseMiddleware(BaseMiddleware):
         data["db"] = self.db
         return await handler(event, data)
 
-
-class BotMembershipMiddleware(BaseMiddleware):
-    async def __call__(
-            self,
-            handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
-            event: ChatMemberUpdated,
-            data: dict[str, Any]
-    ) -> Any:
-
-        return await handler(event, data)

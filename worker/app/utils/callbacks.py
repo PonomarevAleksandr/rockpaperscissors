@@ -2,11 +2,11 @@ from aiogram.filters.callback_data import CallbackData
 
 
 class Confirm(CallbackData, prefix='confirm'):
-    request_id: str
+    sender: int
+    opponent: int
+    time_send: float
 
 class Cancel(CallbackData, prefix='cancel'):
-    request_id: str
-
-class Move(CallbackData, prefix='move'):
-    choise: str
-    user: int
+    sender: int
+    opponent: int
+    time_sent: float
