@@ -1,0 +1,67 @@
+# Python-specific
+__pycache__/
+*.py[cod]
+*.pyo
+*.log
+*.sqlite3
+*.env
+*.env.*
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Byte-compiled, cache files
+*.pyc
+*.pyo
+*.pyd
+*.whl
+*.egg-info/
+
+# Environment files
+.env
+*.env
+.env.*
+
+# Logs and debugging
+logs/
+*.log
+debug.log
+
+# MongoDB-specific (локальные данные)
+*.lock
+data/
+dump/
+
+# Docker-specific
+.dockerignore
+docker-compose.override.yml
+*.pid
+tmp/
+
+# Git-related
+.git/
+*.swp
+*~
+
+# IDE/Editor-specific
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*.old
+
+# Testing/coverage
+.tox/
+.coverage
+coverage.xml
+*.cover
+.cache/
+pytest_cache/
