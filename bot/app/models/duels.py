@@ -1,16 +1,17 @@
-from typing import Dict
+from typing import Dict, Optional
 from pydantic import BaseModel
 from datetime import datetime
 
 
 class Duels(BaseModel):
     duel_id: str
-    group_id: int
-    opponent: int
-    sender: int
-    time_start: float
-    last_updated: float
-    opponent_choice: str = None
-    sender_choice: str = None
+    group_id: int = 0
+    opponent: int= 0
+    sender: int = 0
+    message_id: int = 0
+    time_start: float = 0.0
+    last_updated: float = 0.0
+    sender_choice: Optional[str] = None
+    opponent_choice: Optional[str] = None
 
 

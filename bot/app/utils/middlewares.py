@@ -14,53 +14,52 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+
+
+caches = {
+    "default": TTLCache(maxsize=10_000, ttl=0.1)
+}
+
+
 class UserMiddleware(BaseMiddleware):
-
-    def __init__(self) -> None:
-        pass
-
     async def __call__(
             self,
             handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
             event: Update,
             data: Dict[str, Any]
     ) -> Any:
-        if not hasattr(event, 'from_user'):
-            return
+        if not hasattr(event, "from_user") or event.from_user is None:
+            return await handler(event, data)
 
-        user = await data['db'].users.find_one(f={'id': event.from_user.id})
+        user = await data["db"].users.find_one(f={"id": event.from_user.id})
 
         if isinstance(event, Message):
-
             if user is None:
-                if hasattr(event, 'text'):
+                new_user = event.from_user.model_dump()
+                new_user["created_at"] = int(time.time())
+                new_user["updated_at"] = int(time.time())
 
-                    new_user = event.from_user.model_dump()
-                    new_user['created_at'] = int(time.time())
-                    new_user['updated_at'] = int(time.time())
-
+                if event.text and "rl" in event.text:
                     try:
-                        if 'rl' in event.text:
-                            new_user['refer_id'] = int(event.text.replace('rl', ''))
-                    except:  # noqa
-                        ...
+                        new_user["refer_id"] = int(event.text.replace("rl", ""))
+                    except ValueError:
+                        pass
 
-                    user = User(**new_user)
-                    await data['db'].users.insert_one(user.model_dump())
+                user = User(**new_user)
+                await data["db"].users.insert_one(user.model_dump())
+            elif user.blocked_at is not None:
+                await data["db"].users.update_one(
+                    {"chat_id": event.from_user.id}, {"$set": {"blocked_at": None}}
+                )
 
-            else:
-                if user.blocked_at is not None:
-                    await data['db'].users.update_one({'chat_id': event.from_user.id}, {'blocked_at': None})
+            if user.updated_at < time.time() - 300:
+                await data["db"].users.update_one(
+                    {"chat_id": event.from_user.id},
+                    {"$set": event.from_user.model_dump()},
+                )
 
-        if user.updated_at < time.time() - 300:
-            await data['db'].users.update_one({'chat_id': event.from_user.id}, event.from_user.model_dump())
-
-        data['user'] = user
+        data["user"] = user
         return await handler(event, data)
-
-caches = {
-    "default": TTLCache(maxsize=10_000, ttl=0.1)
-}
 
 
 class ThrottlingMiddleware(BaseMiddleware):
@@ -70,11 +69,12 @@ class ThrottlingMiddleware(BaseMiddleware):
             event: Update,
             data: Dict[str, Any],
     ) -> Any:
+        if not hasattr(event, "from_user") or event.from_user is None:
+            return await handler(event, data)
 
-        if event.from_user.id in caches['default']:
+        if event.from_user.id in caches["default"]:
             return
-        else:
-            caches['default'][event.from_user.id] = None
+        caches["default"][event.from_user.id] = None
         return await handler(event, data)
 
 
@@ -87,7 +87,7 @@ class DataBaseMiddleware(BaseMiddleware):
             self,
             handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
             event: Update,
-            data: Dict[str, Any]
+            data: Dict[str, Any],
     ) -> Any:
         data["db"] = self.db
         return await handler(event, data)
@@ -96,9 +96,10 @@ class DataBaseMiddleware(BaseMiddleware):
 class BotMembershipMiddleware(BaseMiddleware):
     async def __call__(
             self,
-            handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
-            event: ChatMemberUpdated,
-            data: dict[str, Any]
+            handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]],
+            event: Update,
+            data: Dict[str, Any],
     ) -> Any:
-
+        if isinstance(event, ChatMemberUpdated):
+            return await handler(event, data)
         return await handler(event, data)

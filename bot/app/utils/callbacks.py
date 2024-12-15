@@ -8,5 +8,5 @@ class Cancel(CallbackData, prefix='cancel'):
     request_id: str
 
 class Move(CallbackData, prefix='move'):
-    choise: str
-    user: int
+    choice: str
+    duel_id: str
